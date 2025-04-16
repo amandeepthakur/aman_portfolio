@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() {
-  runApp(const PortfolioApp());
+  runApp(const PortfolioApp()); //
 }
 
 class PortfolioApp extends StatelessWidget {
