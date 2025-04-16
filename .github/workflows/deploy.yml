@@ -23,7 +23,7 @@ jobs:
         run: flutter config --enable-web
 
       - name: Build Flutter Web
-        run: flutter build web --base-href "/portfolio/" --release
+        run: flutter build web --base-href "/aman_portfolio/" --release
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
