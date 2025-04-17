@@ -57,8 +57,47 @@ class PortfolioHomePage extends StatefulWidget {
 
 class _PortfolioHomePageState extends State<PortfolioHomePage> {
   final ScrollController _scrollController = ScrollController();
+  final List<GlobalKey> _sectionKeys = List.generate(7, (index) => GlobalKey());
+
   int _currentSection = 0;
   final List<String> _sections = ['Home', 'About', 'Experience', 'Skills', 'Projects', 'Education', 'Contact'];
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateCurrentSectionOnScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateCurrentSectionOnScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateCurrentSectionOnScroll() {
+    // Get the current scroll position
+    double scrollPosition = _scrollController.position.pixels;
+    double viewportHeight = _scrollController.position.viewportDimension;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Check which section is most visible
+    for (int i = 0; i < _sectionKeys.length; i++) {
+      final RenderBox renderBox = _sectionKeys[i].currentContext?.findRenderObject() as RenderBox;
+      final position = renderBox.localToGlobal(Offset.zero);
+
+      // If the section is in the viewport
+      if (position.dy <= screenHeight / 2 &&
+          position.dy + renderBox.size.height >= screenHeight / 2) {
+        if (_currentSection != i) {
+          setState(() {
+            _currentSection = i;
+          });
+        }
+        break;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +105,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.transparent,
         title: kIsWeb && MediaQuery.of(context).size.width > 800
             ? Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -80,17 +119,30 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
                     _currentSection = index;
                   });
                 },
-                child: Text(
-                  section,
-                  style: TextStyle(
-                    color: _currentSection == index
-                        ? Theme.of(context).colorScheme.secondary
-                        : Colors.white,
-                    fontWeight: _currentSection == index
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentSection = index;
+                    });
+                    // Scroll to the selected section
+                    Scrollable.ensureVisible(
+                      _sectionKeys[index].currentContext!,
+                      duration: const Duration(milliseconds: 800),
+                      curve: Curves.easeInOutCubic,
+                    );
+                  },
+                  child: Text(
+                    section,
+                    style: TextStyle(
+                      color: _currentSection == index
+                          ? Theme.of(context).colorScheme.secondary
+                          : Colors.white,
+                      fontWeight: _currentSection == index
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
                   ),
-                ),
+                )
               ),
             );
           }).toList(),
@@ -124,6 +176,12 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
                     _currentSection = index;
                     Navigator.pop(context);
                   });
+                  // Scroll to the selected section
+                  Scrollable.ensureVisible(
+                    _sectionKeys[index].currentContext!,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeInOutCubic,
+                  );
                 },
               );
             }).toList(),
@@ -154,7 +212,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
           );
           await launchUrl(emailLaunchUri);
         },
-        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
         child: const Icon(Icons.email),
       ),
     );
@@ -162,6 +220,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
 
   Widget _buildHeroSection() {
     return Container(
+      key: _sectionKeys[0],
       height: MediaQuery.of(context).size.height,
       width: double.infinity,
       decoration: BoxDecoration(
@@ -180,7 +239,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
         children: [
           CircleAvatar(
             radius: 75,
-            backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+            foregroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
             child: Text(
               'AT',
               style: TextStyle(
@@ -272,7 +331,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
         style: ElevatedButton.styleFrom(
           shape: const CircleBorder(),
           padding: const EdgeInsets.all(20),
-          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.7),
+          foregroundColor: Theme.of(context).primaryColor.withOpacity(0.7),
         ),
         child: Icon(icon, size: 30),
       ),
@@ -281,6 +340,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
 
   Widget _buildAboutSection() {
     return Container(
+      key: _sectionKeys[1],
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,7 +413,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
                       icon: const Icon(Icons.download),
                       label: const Text('Download Resume'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Theme.of(context).primaryColor,
                         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -389,6 +449,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
 
   Widget _buildExperienceSection() {
     return Container(
+      key: _sectionKeys[2],
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
@@ -540,6 +601,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
     ];
 
     return Container(
+      key: _sectionKeys[3],
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,6 +746,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
     ];
 
     return Container(
+      key: _sectionKeys[4],
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
@@ -820,7 +883,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Theme.of(context).primaryColor,
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -839,7 +902,8 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
 
   Widget _buildEducationSection() {
     return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
+      key: _sectionKeys[5],
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
     child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -1117,6 +1181,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
 
   Widget _buildContactSection() {
     return Container(
+      key: _sectionKeys[6],
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
@@ -1266,7 +1331,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
                             // Add send message functionality
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Theme.of(context).primaryColor,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -1359,7 +1424,7 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
       style: ElevatedButton.styleFrom(
         shape: const CircleBorder(),
         padding: const EdgeInsets.all(15),
-        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+        foregroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
       ),
       child: Icon(
         icon,
