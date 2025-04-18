@@ -8,10 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # Grant write permissions to the GITHUB_TOKEN
     permissions:
-      contents: write  # Required to push to gh-pages
+      contents: write
 
     steps:
       - uses: actions/checkout@v3
@@ -28,12 +26,14 @@ jobs:
         run: flutter config --enable-web
 
       - name: Build Flutter Web
-        run: flutter build web --base-href "/aman_portfolio/" --release
+        run: |
+          flutter build web --release
+          touch build/web/.nojekyll  # Add .nojekyll file
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
-          # Optional: Force push to avoid branch history conflicts
-          force_orphan: true
+          destination_dir: ./
+          force_orphan: true  # Clean branch
