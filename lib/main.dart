@@ -102,10 +102,10 @@ class _PortfolioHomePageState extends State<PortfolioHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
         elevation: 0,
-        foregroundColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
         title: kIsWeb && MediaQuery.of(context).size.width > 800
             ? Row(
           mainAxisAlignment: MainAxisAlignment.center,
